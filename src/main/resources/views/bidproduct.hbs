@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Card</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background-color: dodgerblue;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            width: 100%;
+            z-index: 100;
+        }
+
+        .product-card {
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            margin-top: 40px;
+            padding: 20px;
+        }
+
+        .product-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: dodgerblue;
+            margin-bottom: 10px;
+        }
+
+        .product-description {
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .current-amount-label,
+        .add-amount-label {
+            font-weight: bold;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .amount-input {
+            width: 100px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .submit-button {
+            background-color: dodgerblue;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .submit-button:hover {
+            background-color: royalblue;
+        }
+    </style>
+</head>
+
+<body>
+<div class="navbar">
+    <h1>Dear Bidder - Let's Bid</h1>
+</div>
+
+<div class="product-card">
+
+                {{#each productList}}
+                    <div class="product-bidding-form">
+                        <h2>Product Bidding Form</h2>
+                        <div class="product-info">
+                            <p>Name: {{name}}<span id="product-name"></span></p>
+                            <p>Description: {{this.description}}<span id="product-description"></span></p>
+                            <p>Min Bidding Amount: {{minBiddingAmount}}<span id="min-bidding-amount"></span> </p>
+                            <p>Current Amount: <span id="current-amount"></span></p>
+                        </div>
+                        <div class="bid-amount-field">
+                            <label for="bid-amount">Bid Amount:</label>
+                            <input type="number" name="bid-amount" id="bid-amount" placeholder="Enter bid amount">
+                        </div>
+                        <FORM method="post" action="/bidproduct">
+                            <button type="submit" class="bid-button">Bid</button>
+                        </FORM>
+                    </div>
+                {{/each}}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+  $(".bid-button").on("click", function(e) {
+    e.preventDefault();
+
+    // Get the bid amount
+    var bidAmount = $("#bid-amount").val();
+
+    // Clear the current amount
+    $("#current-amount").text("");
+
+    // Update the current amount with the bid amount
+    $("#current-amount").text(bidAmount);
+
+    // Clear the bid amount input
+    $("#bid-amount").val("");
+  });
+});
+    </script>
+
+</div>
+</body>
+
+</html>

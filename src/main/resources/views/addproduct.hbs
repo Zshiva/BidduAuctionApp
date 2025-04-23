@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        #navbar {
+            background-color: dodgerblue;
+            color: #333;
+            text-align: center;
+            padding: 10px;
+        }
+
+        #addProductContainer {
+            max-width: 450px;
+            margin: 0 auto;
+            background-color: skyblue;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+        }
+
+        .input-label {
+            font-weight: bold;
+        }
+
+        input[type="text"], textarea {
+            width: 90%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 15px;
+        }
+
+        input[type="number"] {
+            width: 90%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 15px;
+        }
+
+        button {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+<div id="navbar">
+    <h1>Welcome Seller To The World's No. 1 Bidding Application</h1>
+</div>
+<div id="addProductContainer">
+    <h2 style="text-align: center;">Add Products</h2>
+
+    <form method="post" action="/seller/addproduct">
+        <div class="input-label">Item Name:</div>
+        <input type="text" name="name" required>
+
+        <div class="input-label">Product Description:</div>
+        <textarea name="description" rows="4" required></textarea>
+
+        <div class="input-label">Entry Date :</div>
+        <input type="datetime-local" name="entryTime">
+
+
+        <div class="input-label">Expiry Date:</div>
+        <input type="datetime-local" name="expiryTime">
+
+        <div class="input-label">Current Product Price:</div>
+        <input type="number" name="minBiddingAmount">
+
+        <button type="submit" style="background-color: dodgerblue">Add Product</button>
+    </form>
+</div>
+
+<script>
+    const entryDateInput = document.querySelector("input[readonly]");
+    const currentDate = new Date();
+    const formattedDate = currentDate.toLocaleString();
+    entryDateInput.value = formattedDate;
+</script>
+</body>
+</html>
