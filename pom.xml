@@ -124,6 +124,12 @@
       <artifactId>jbcrypt</artifactId>
       <version>0.4</version>
     </dependency>
+    <!-- YAML Support -->
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <scope>runtime</scope>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
