@@ -1,6 +1,7 @@
 package practice.projects.repository;
 
 import practice.projects.platform.constants.UserRole;
+import practice.projects.platform.security.PasswordHasher;
 
 public class UserEntity {
     private String name;
@@ -37,7 +38,8 @@ public class UserEntity {
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        // Hash password using BCrypt before storing
+        this.password = PasswordHasher.hashPassword(password);
     }
 
     public String getContact() {
