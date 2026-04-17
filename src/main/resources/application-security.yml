@@ -1,0 +1,37 @@
+micronaut:
+  security:
+    enabled: true
+    authentication: bearer
+    token:
+      jwt:
+        enabled: true
+        claims:
+          aud: biddu_auction_app
+        header: Authorization
+        prefix: Bearer
+        generator:
+          # Token expiration in seconds (1 hour)
+          expiration: 3600
+    intercept-url-map:
+      - pattern: /api/auth/login
+        http-method: POST
+        access:
+          - isAnonymous()
+      - pattern: /api/auth/verify
+        http-method: GET
+        access:
+          - isAuthenticated()
+      - pattern: /api/auth/logout
+        http-method: POST
+        access:
+          - isAuthenticated()
+      - pattern: /bidder/**
+        access:
+          - hasRole("BIDDER")
+      - pattern: /seller/**
+        access:
+          - hasRole("SELLER")
+      - pattern: /admin/**
+        access:
+          - hasRole("ADMIN")
+
