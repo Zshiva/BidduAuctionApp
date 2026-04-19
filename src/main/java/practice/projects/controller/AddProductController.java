@@ -10,6 +10,7 @@ import freemarker.template.TemplateException;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.*;
+import io.micronaut.security.annotation.Secured;
 import io.micronaut.views.View;
 import jakarta.inject.Inject;
 import jakarta.mail.MessagingException;
@@ -20,6 +21,7 @@ import java.sql.SQLException;
 
 @Controller("/seller")
 @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+@Secured("SELLER") // Only SELLER role can access this controller
 public class AddProductController {
     private final AddProductUseCase addProductUseCase;
     @Inject
@@ -45,3 +47,5 @@ public class AddProductController {
         }
     }
 }
+
+
