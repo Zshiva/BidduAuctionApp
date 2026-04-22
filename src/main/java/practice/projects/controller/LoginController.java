@@ -4,6 +4,8 @@ package practice.projects.controller;
 import practice.projects.controller.payload.LoginUserRequestPayload;
 import practice.projects.converter.UserConverter;
 import practice.projects.repository.UserEntity;
+import practice.projects.repository.jdbc.UserDbRepository;
+import practice.projects.repository.mapper.DbMapper;
 import practice.projects.usecase.login.LoginUseCase;
 import practice.projects.usecase.login.LoginUseCaseRequest;
 import freemarker.template.TemplateException;
@@ -18,16 +20,16 @@ import java.io.IOException;
 import java.net.URI;
 import java.sql.SQLException;
 
-import static practice.projects.platform.usecase.UseCase.userList;
-
 @Controller("/users")
 @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 public class LoginController {
     private final LoginUseCase loginUseCase;
+    private final UserDbRepository userDbRepository;
 
     @Inject
-    public LoginController(LoginUseCase loginUseCase) {
+    public LoginController(LoginUseCase loginUseCase, UserDbRepository userDbRepository) {
         this.loginUseCase = loginUseCase;
+        this.userDbRepository = userDbRepository;
     }
 
     @View("login")
@@ -41,14 +43,13 @@ public class LoginController {
         LoginUseCaseRequest request = UserConverter.toRequest(payload);
         loginUseCase.execute(request);
         String email = payload.email();
-        for (UserEntity user : userList) {
-            if (user.getEmail().equals(email)) {
-                String role = user.getRoles().name();
-                if (role.equals("BIDDER")) {
-                    return HttpResponse.redirect(URI.create("/bidder"));
-                } else if (role.equals("SELLER")) {
-                    return HttpResponse.redirect(URI.create("/seller"));
-                }
+        UserEntity user = userDbRepository.findByEmail(email).map(DbMapper::toDomain).orElse(null);
+        if (user != null && user.getRoles() != null) {
+            String role = user.getRoles().name();
+            if (role.equals("BIDDER")) {
+                return HttpResponse.redirect(URI.create("/bidder"));
+            } else if (role.equals("SELLER")) {
+                return HttpResponse.redirect(URI.create("/seller"));
             }
         }
         return HttpResponse.ok();
