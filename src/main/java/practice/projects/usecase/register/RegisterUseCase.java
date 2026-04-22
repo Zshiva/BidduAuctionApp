@@ -7,6 +7,8 @@ import practice.projects.platform.exception.BidduAuctionException;
 import practice.projects.platform.usecase.UseCase;
 import practice.projects.platform.utils.helperutils.PasswordGenerator;
 import practice.projects.repository.UserEntity;
+import practice.projects.repository.jdbc.UserDbRepository;
+import practice.projects.repository.mapper.DbMapper;
 import practice.projects.usecase.email.SendEmailUseCaseRequest;
 import freemarker.template.TemplateException;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -24,11 +26,15 @@ public class RegisterUseCase implements UseCase<RegisterUseCaseRequest, Register
 
     private final PasswordGenerator passwordGenerator;
     private final EmailService emailService;
+    private final UserDbRepository userDbRepository;
 
     @Inject
-    public RegisterUseCase(PasswordGenerator passwordGenerator, EmailService emailService) {
+    public RegisterUseCase(PasswordGenerator passwordGenerator,
+                           EmailService emailService,
+                           UserDbRepository userDbRepository) {
         this.passwordGenerator = passwordGenerator;
         this.emailService = emailService;
+        this.userDbRepository = userDbRepository;
     }
 
 
@@ -37,7 +43,7 @@ public class RegisterUseCase implements UseCase<RegisterUseCaseRequest, Register
         if (!isValidEmail(email)) {
             throw new BidduAuctionException(BidduAuctionErrorMessage.EMAIL_ID_INVALID);
         }
-        if (findByEmail(email).isPresent()) {
+        if (userDbRepository.existsByEmail(email)) {
             throw new BidduAuctionException(BidduAuctionErrorMessage.EMAIL_ID_ALREADY_EXISTS);
         }
     }
@@ -50,17 +56,12 @@ public class RegisterUseCase implements UseCase<RegisterUseCaseRequest, Register
         return matcher.matches();
     }
 
-    public Optional<UserEntity> findByEmail(String email) {
-        return userList.stream()
-                .filter(user -> user.getEmail().equals(email))
-                .findFirst();
-    }
     @Override
     public Optional<RegisterUseCaseResponse> execute(RegisterUseCaseRequest request) throws MessagingException, TemplateException, SQLException, IOException {
         validateRegistration(request);
         String password = PasswordGenerator.generateRandomPassword(8);
         UserEntity user = UserConverter.toEntity(request, password);
-        userList.add(user);
+        userDbRepository.save(DbMapper.toDbEntity(user));
         SendEmailUseCaseRequest emailRequest = new SendEmailUseCaseRequest(user.getEmail(), "Welcome to Biddu Auction", password);
         emailService.sendEmail(emailRequest);
         return Optional.of(new RegisterUseCaseResponse());
