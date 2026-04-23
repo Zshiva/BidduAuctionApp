@@ -4,40 +4,43 @@ package practice.projects.usecase.login;
 import practice.projects.platform.exception.BidduAuctionErrorMessage;
 import practice.projects.platform.exception.BidduAuctionException;
 import practice.projects.platform.rest.RestResponse;
+import practice.projects.platform.security.PasswordHasher;
 import practice.projects.platform.usecase.UseCase;
 import practice.projects.repository.UserEntity;
+import practice.projects.repository.jdbc.UserDbRepository;
+import practice.projects.repository.mapper.DbMapper;
 import jakarta.inject.Inject;
 
 import java.util.Optional;
 
 public class LoginUseCase implements UseCase<LoginUseCaseRequest, LoginUseCaseResponse> {
 
+    private final UserDbRepository userDbRepository;
+
     @Inject
-    public LoginUseCase() {
+    public LoginUseCase(UserDbRepository userDbRepository) {
+        this.userDbRepository = userDbRepository;
     }
 
     private void validateLogin(LoginUseCaseRequest request) {
         String email = request.email();
-        Optional<UserEntity> emailExists = findByEmail(email);
-        if (!emailExists.isPresent()) {
+        if (userDbRepository.findByEmail(email).isEmpty()) {
             throw new BidduAuctionException(BidduAuctionErrorMessage.EMAIL_ID_NOT_FOUND);
         }
-    }
-
-    private Optional<UserEntity> findByEmail(String email) {
-        return userList.stream()
-                .filter(user -> user.getEmail().equals(email))
-                .findFirst();
     }
 
     @Override
     public Optional<LoginUseCaseResponse> execute(LoginUseCaseRequest request) {
         validateLogin(request);
         String email = request.email();
-        Optional<UserEntity> userDetails = findByEmail(email);
-        if (userDetails.isPresent() && userDetails.get().getPassword().equals(request.password())) {
-            String roleMessage = userDetails.get().getRoles() != null ? userDetails.get().getRoles().toString() : BidduAuctionErrorMessage.UNKNOWN_ROLE.getMessage();
-            return Optional.of(new LoginUseCaseResponse(roleMessage + RestResponse.success().message()));
+        var userDbOpt = userDbRepository.findByEmail(email);
+        if (userDbOpt.isPresent()) {
+            UserEntity userDetails = DbMapper.toDomain(userDbOpt.get());
+            if (PasswordHasher.verifyPassword(request.password(), userDetails.getPassword())) {
+                String roleMessage = userDetails.getRoles() != null ? userDetails.getRoles().toString() : BidduAuctionErrorMessage.UNKNOWN_ROLE.getMessage();
+                return Optional.of(new LoginUseCaseResponse(roleMessage + RestResponse.success().message()));
+            }
+            throw new BidduAuctionException(BidduAuctionErrorMessage.LOGIN_CREDENTIALS_DOES_NOT_MATCH);
         } else {
             throw new BidduAuctionException(BidduAuctionErrorMessage.LOGIN_CREDENTIALS_DOES_NOT_MATCH);
         }
