@@ -16,6 +16,7 @@ import freemarker.template.TemplateException;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.*;
+import io.micronaut.security.annotation.Secured;
 import io.micronaut.views.ModelAndView;
 import jakarta.inject.Inject;
 import jakarta.mail.MessagingException;
@@ -37,12 +38,14 @@ public class BidProductController {
         this.updateProductUseCase = updateProductUseCase;
     }
     @Get("/bidproduct")
+    @Secured("BIDDER") // Only BIDDER role can access
     public ModelAndView bidder() throws MessagingException, TemplateException, SQLException, IOException {
         GetUserUseCaseRequest request = new GetUserUseCaseRequest();
         return new ModelAndView("bidproduct",this.getUserUseCase.execute(request).get());
     }
     @Post("/bidproduct")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Secured("BIDDER") // Only BIDDER role can access
     public HttpResponse<Object> bidProduct(@Body BidProductPayload payload) throws MessagingException, TemplateException, SQLException, IOException {
         BiddingUseCaseRequest request = new BiddingUseCaseRequest(payload.name(), payload.minBiddingAmount(), payload.amount());
         var response = biddingUseCase.execute(request);
@@ -53,6 +56,7 @@ public class BidProductController {
         }
     }
     @Post("/update/{name}")
+    @Secured("SELLER") // Only SELLER role can update products
     public HttpResponse<RestResponse> updateProducts(@Body UpdateProductPayload updateProductPayload) throws MessagingException, TemplateException, SQLException, IOException {
         UpdateProductUseCaseRequest updateProductUseCaseRequest = AddProductConverter.toUpdateProduct(updateProductPayload);
         updateProductUseCase.execute(updateProductUseCaseRequest);
