@@ -2,18 +2,22 @@ package practice.projects.usecase.login;
 
 import practice.projects.platform.exception.BidduAuctionErrorMessage;
 import practice.projects.platform.exception.BidduAuctionException;
-import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import org.mockito.Mockito;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import practice.projects.repository.jdbc.UserDbRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@MicronautTest
 class LoginUseCaseTest {
     LoginUseCase loginUseCase;
+
     @BeforeEach
-    public void setUp(){
-        loginUseCase = new LoginUseCase();
+    void setUp() {
+        UserDbRepository repo = Mockito.mock(UserDbRepository.class);
+        // repository returns empty optional -> EMAIL_ID_NOT_FOUND
+        Mockito.when(repo.findByEmail(Mockito.anyString())).thenReturn(java.util.Optional.empty());
+        loginUseCase = new LoginUseCase(repo);
     }
 //    @Test
 //    public void shouldLoginWithRightLoginData(){

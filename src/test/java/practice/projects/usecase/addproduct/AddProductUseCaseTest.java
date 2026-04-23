@@ -1,10 +1,11 @@
 package practice.projects.usecase.addproduct;
 
 import freemarker.template.TemplateException;
-import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import org.mockito.Mockito;
 import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import practice.projects.repository.jdbc.ProductDbRepository;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -13,14 +14,16 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-@MicronautTest
+
 public class AddProductUseCaseTest {
     AddProductUseCase addProductUseCase;
 
     @BeforeEach
-    public void setUp() {
-        addProductUseCase = new AddProductUseCase();
+    void setUp() {
+        ProductDbRepository repo = Mockito.mock(ProductDbRepository.class);
+        addProductUseCase = new AddProductUseCase(repo);
     }
+
 
     @Test
     public void shouldAddProductWIthRightProductData() throws MessagingException, TemplateException, SQLException, IOException {
