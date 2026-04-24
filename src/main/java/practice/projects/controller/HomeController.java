@@ -1,10 +1,12 @@
 package practice.projects.controller;
 
+import io.micronaut.core.annotation.Introspected;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
+import io.micronaut.serde.annotation.Serdeable;
 import io.micronaut.views.View;
 
 @Controller("/")
@@ -32,6 +34,8 @@ public class HomeController {
         return "admin";
     }
 
+    @Introspected
+    @Serdeable
     static class HomeResponse {
         public String title;
         public String description;
@@ -46,6 +50,8 @@ public class HomeController {
         }
     }
 
+    @Introspected
+    @Serdeable
     static class LoginLinks {
         public String login;
         public String register;
