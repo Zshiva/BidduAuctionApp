@@ -6,8 +6,9 @@ import io.micronaut.core.async.publisher.Publishers;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.reactivestreams.Publisher;
-import practice.projects.platform.usecase.UseCase;
 import practice.projects.repository.UserEntity;
+import practice.projects.repository.jdbc.UserDbRepository;
+import practice.projects.repository.mapper.DbMapper;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -19,8 +20,11 @@ import java.util.Optional;
 @Singleton
 public class BidduAuthentication_Provider implements AuthenticationProvider, BidduAuthenticationProvider {
 
+    private final UserDbRepository userDbRepository;
+
     @Inject
-    public BidduAuthentication_Provider() {
+    public BidduAuthentication_Provider(UserDbRepository userDbRepository) {
+        this.userDbRepository = userDbRepository;
     }
 
     @Override
@@ -29,9 +33,8 @@ public class BidduAuthentication_Provider implements AuthenticationProvider, Bid
         String email = (String) authenticationRequest.getIdentity();
         String password = (String) authenticationRequest.getSecret();
 
-        UserEntity user = UseCase.userList.stream()
-                .filter(u -> u.getEmail().equals(email))
-                .findFirst()
+        UserEntity user = userDbRepository.findByEmail(email)
+                .map(DbMapper::toDomain)
                 .orElse(null);
 
         if (user != null && PasswordHasher.verifyPassword(password, user.getPassword())) {
