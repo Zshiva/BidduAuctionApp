@@ -9,8 +9,9 @@ import jakarta.inject.Inject;
 import practice.projects.platform.rest.RestResponse;
 import practice.projects.platform.security.JwtTokenProvider;
 import practice.projects.platform.security.PasswordHasher;
-import practice.projects.platform.usecase.UseCase;
 import practice.projects.repository.UserEntity;
+import practice.projects.repository.jdbc.UserDbRepository;
+import practice.projects.repository.mapper.DbMapper;
 import practice.projects.usecase.login.JwtTokenResponse;
 
 import java.util.Collections;
@@ -23,11 +24,13 @@ import java.util.Optional;
 public class ApiLoginController {
     private final Authenticator authenticator;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserDbRepository userDbRepository;
 
     @Inject
-    public ApiLoginController(Authenticator authenticator, JwtTokenProvider jwtTokenProvider) {
+    public ApiLoginController(Authenticator authenticator, JwtTokenProvider jwtTokenProvider, UserDbRepository userDbRepository) {
         this.authenticator = authenticator;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.userDbRepository = userDbRepository;
     }
 
     /**
@@ -41,9 +44,8 @@ public class ApiLoginController {
     public HttpResponse<?> login(@QueryValue String email, @QueryValue String password) {
         try {
             // Find user
-            Optional<UserEntity> userOpt = UseCase.userList.stream()
-                    .filter(u -> u.getEmail().equals(email))
-                    .findFirst();
+            Optional<UserEntity> userOpt = userDbRepository.findByEmail(email)
+                    .map(DbMapper::toDomain);
 
             if (userOpt.isEmpty()) {
                 return HttpResponse.unauthorized()
